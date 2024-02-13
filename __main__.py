@@ -20,7 +20,7 @@ def get_documents(pn):
 
 
 def main():
-    pn_list = [generate_pn(pn) for pn in range(1, 100 + 1)]
+    pn_list = [generate_pn(pn) for pn in range(1, 100000 + 1)]
     pn_split = np.array_split(
         pn_list,
         min(

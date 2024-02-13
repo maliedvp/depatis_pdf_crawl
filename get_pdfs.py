@@ -73,7 +73,7 @@ def download_depatis_pdf(patent_number, page_num):
         pdf_viewer_link = iframe["src"]
         driver.get(pdf_viewer_link)
 
-        time.sleep(2)
+        time.sleep(3)
         
         # the download
         try: 
@@ -85,7 +85,7 @@ def download_depatis_pdf(patent_number, page_num):
             download_button.click()
             print(f'Patent {patent_number} (Page {page_num}): Download has started')
             # Wait for the download to complete
-            time.sleep(2)
+            time.sleep(3)
 
         except Exception as e:
             print("Error waiting for download button:", e)
