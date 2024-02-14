@@ -29,69 +29,76 @@ def download_depatis_pdf(patent_number, page_num):
     }
     chrome_options.add_experimental_option("prefs", prefs)
 
-    # open the browser
-    driver = webdriver.Chrome(options=chrome_options)
 
-    # Navigate to the webpage
-    driver.get(link)
+    for _ in range(5):
+        try:
+            # open the browser
+            driver = webdriver.Chrome(options=chrome_options)
 
-
-
-    # Find the iframe and switch to it
-    iframe = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.CLASS_NAME, "dpma-iframe-sa-full"))
-    )
-    driver.switch_to.frame(iframe)
-
-    # Read the iframe's source code
-    iframe_source_code = driver.page_source
-    soup = BeautifulSoup(iframe_source_code, "html.parser")
-    iframe = soup.find("iframe", id="dpma-sa-pdf-iframe")
+            # Navigate to the webpage
+            driver.get(link)
 
 
-    # navigate to the second page and read iframe source code again
-    if iframe and iframe.has_attr("src"):
 
-        if page_num == 2: # extra round if second pdf shall be downloaded
-
-            button = driver.find_element(By.XPATH, '//a[@title="Nächste Seite des aktuellen Dokuments"]')
-            button.click()
-
-            driver.page_source
-
+            # Find the iframe and switch to it
             iframe = WebDriverWait(driver, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "dpma-iframe-sa-full"))
             )
-
             driver.switch_to.frame(iframe)
 
+            # Read the iframe's source code
             iframe_source_code = driver.page_source
             soup = BeautifulSoup(iframe_source_code, "html.parser")
             iframe = soup.find("iframe", id="dpma-sa-pdf-iframe")
 
-        
-        pdf_viewer_link = iframe["src"]
-        driver.get(pdf_viewer_link)
 
-        time.sleep(3)
-        
-        # the download
-        try: 
-            # Wait for the download button to be clickable
-            download_button = WebDriverWait(driver, 20).until(
-                EC.element_to_be_clickable((By.ID, 'download'))
-            )
+            # navigate to the second page and read iframe source code again
+            if iframe and iframe.has_attr("src"):
 
-            download_button.click()
-            print(f'Patent {patent_number} (Page {page_num}): Download has started')
-            # Wait for the download to complete
-            time.sleep(3)
+                if page_num == 2: # extra round if second pdf shall be downloaded
 
-        except Exception as e:
-            print("Error waiting for download button:", e)
+                    button = driver.find_element(By.XPATH, '//a[@title="Nächste Seite des aktuellen Dokuments"]')
+                    button.click()
 
-    else:
-        print(f'Patent {patent_number} (Page {page_num}): Server blocked access')
+                    driver.page_source
 
-    driver.quit()
+                    iframe = WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.CLASS_NAME, "dpma-iframe-sa-full"))
+                    )
+
+                    driver.switch_to.frame(iframe)
+
+                    iframe_source_code = driver.page_source
+                    soup = BeautifulSoup(iframe_source_code, "html.parser")
+                    iframe = soup.find("iframe", id="dpma-sa-pdf-iframe")
+
+                
+                pdf_viewer_link = iframe["src"]
+                driver.get(pdf_viewer_link)
+
+                time.sleep(3)
+                
+                # the download
+                try: 
+                    # Wait for the download button to be clickable
+                    download_button = WebDriverWait(driver, 20).until(
+                        EC.element_to_be_clickable((By.ID, 'download'))
+                    )
+
+                    download_button.click()
+                    print(f'Patent {patent_number} (Page {page_num}): Download has started')
+                    # Wait for the download to complete
+                    time.sleep(3)
+
+                except Exception as e:
+                    print("Error waiting for download button:", e)
+
+            else:
+                print(f'Patent {patent_number} (Page {page_num}): Server blocked access')
+
+            driver.quit()
+            break
+            
+        except:
+            print(f'Patent {patent_number} (Page {page_num}): Server blocked access')
 
