@@ -3,6 +3,7 @@ import numpy as np
 import re
 from get_pdfs import download_depatis_pdf
 import multiprocessing as mp
+from missing_pn import missing_pns
 
 def generate_pn(pn):
     return 'DE' + str('000000000000' + str(pn))[-12:] + 'A'
@@ -20,7 +21,11 @@ def get_documents(pn):
 
 
 def main():
-    pn_list = [generate_pn(pn) for pn in range(1, 100000 + 1)]
+    if missing_pns != []:
+        pn_list = missing_pns
+    else:
+        pn_list = [generate_pn(pn) for pn in range(1, 100000 + 1)]
+
     pn_split = np.array_split(
         pn_list,
         min(
