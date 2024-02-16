@@ -23,8 +23,10 @@ def get_documents(pn):
 def main():
     if missing_pns != []:
         pn_list = missing_pns
+        print('Patent numbers from missing_pn are used')
     else:
-        pn_list = [generate_pn(pn) for pn in range(1, 100000 + 1)]
+        pn_list = [generate_pn(pn) for pn in range(1, 600000 + 1)]
+        print('Automatic patent numbers in range are used')
 
     pn_split = np.array_split(
         pn_list,
