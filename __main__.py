@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import re
-from get_pdfs import download_depatis_pdf
 import multiprocessing as mp
 import pathlib
 import argparse
