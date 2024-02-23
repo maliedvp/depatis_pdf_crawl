@@ -36,37 +36,43 @@ class Download_pdf_depatis():
             os.makedirs(self.output_directory)
 
         if not str(pn + '_1') in [re.split(r'\.',f)[0] for f in os.listdir(self.output_directory)]:
-        	self.download_depatis_pdf(patent_number=pn, page_num=1)
+            self.download_depatis_pdf(patent_number=pn, page_num=1)
+            self.clean_temp_folder()
         elif not str(pn + '_2') in [re.split(r'\.',f)[0] for f in os.listdir(self.output_directory)]:
-        	self.download_depatis_pdf(patent_number=pn, page_num=2)
+            self.download_depatis_pdf(patent_number=pn, page_num=2)
+            self.clean_temp_folder()
         else:
-        	print(f'Patent {pn}: Both files already exists')
+            print(f'Patent {pn}: Both files already exists')
 
 
     def clean_temp_folder(self):
-        for target_path in os.listdir(self.temp_directory):
-            path_to_checked = self.temp_directory / target_path
+        for target_path in [f for f in os.listdir(self.temp_directory) if re.search(r'chromium|google' ,f)!=None]:
+            try:
+                path_to_checked = self.temp_directory / target_path
+                creation_time = datetime.fromtimestamp(path_to_checked.stat().st_ctime)
+                age_in_minutes = (datetime.now() - creation_time).total_seconds() / 60.0
 
-            creation_time = datetime.fromtimestamp(path_to_checked.stat().st_ctime)
-            age_in_minutes = (datetime.now() - creation_time).total_seconds() / 60.0
 
-            if age_in_minutes >= 4:
-                if path_to_checked.is_file():
-                    try:
-                        os.remove(target_path)
-                        print(f"File {target_path} has been removed.")
-                    except:
-                        pass
-                elif path_to_checked.is_dir():
-                    try:
-                        shutil.rmtree(target_path)
-                        print(f"Directory {target_path} and all its contents have been removed.")
-                    except:
-                        pass
+                if age_in_minutes >= 4:
+                    if path_to_checked.is_file():
+                        try:
+                            os.remove(path_to_checked)
+                            print(f"File {path_to_checked} has been removed.")
+                        except:
+                            pass
+                    elif path_to_checked.is_dir():
+                        try:
+                            shutil.rmtree(path_to_checked)
+                            print(f"Directory {path_to_checked} and all its contents have been removed.")
+                        except:
+                            pass
+                    else:
+                        print(f"The target {path_to_checked} does not exist.")
                 else:
-                    print(f"The target {target_path} does not exist.")
-            else:
-                print(f"The target {target_path} is too young to be deleted.")
+                    print(f"The target {path_to_checked} is too young to be deleted.")
+            except:
+                print(f"The target {path_to_checked} impossible to be deleted.")
+
 
     def download_depatis_pdf(self, patent_number, page_num):
         # specify download link
@@ -85,7 +91,6 @@ class Download_pdf_depatis():
             "plugins.always_open_pdf_externally": True  # Automatically download PDFs
         }
         chrome_options.add_experimental_option("prefs", prefs)
-
 
         for _ in range(5):
             try:
@@ -156,9 +161,6 @@ class Download_pdf_depatis():
                 
             except:
                 print(f'Patent {patent_number} (Page {page_num}): Server blocked access')
-
-        self.clean_temp_folder()
-
 
 
 
