@@ -45,6 +45,29 @@ class Download_pdf_depatis():
             # print(f'Patent {pn}: Both files already exists')
             pass
 
+    def clean_download_folder(self):
+        for target_path in [f for f in os.listdir(self.output_directory) if re.search(r'\.crdownload$' ,f)!=None]:
+            try:
+                path_to_checked = self.output_directory / target_path
+                creation_time = datetime.fromtimestamp(path_to_checked.stat().st_ctime)
+                age_in_minutes = (datetime.now() - creation_time).total_seconds() / 60.0
+
+                if age_in_minutes >= 4:
+                    os.remove(path_to_checked)
+            except:
+                pass
+
+        for target_path in [f for f in os.listdir(self.output_directory) if os.path.getsize(self.output_directory / f)==0]:
+            try:
+                path_to_checked = self.output_directory / target_path
+                creation_time = datetime.fromtimestamp(path_to_checked.stat().st_ctime)
+                age_in_minutes = (datetime.now() - creation_time).total_seconds() / 60.0
+
+                if age_in_minutes >= 4:
+                    os.remove(path_to_checked)
+            except:
+                pass
+
 
     def clean_temp_folder(self):
         for target_path in [f for f in os.listdir(self.temp_directory) if re.search(r'chromium|google' ,f)!=None]:
@@ -159,12 +182,16 @@ class Download_pdf_depatis():
                             time.sleep(3)
                             i+=1
                             print(f'\t  Patent {patent_number} (Page {page_num}): caught in 1. while-loop {i}')
+                            if i>=100:
+                                break
 
                         i = 0
                         while os.path.getsize(file_path)==0:
                             time.sleep(3)
                             i+=1
                             print(f'\t Patent {patent_number} (Page {page_num}): caught in 2. while-loop {i}')
+                            if i>=100:
+                                break
 
                         print(f'Patent {patent_number} (Page {page_num}): Download has finished')
 
@@ -205,6 +232,9 @@ class Download_pdf_depatis():
 
         with mp.Pool(workers_number) as pool:
             pool.map(self.get_documents, pn_flat_list)
+
+
+        self.clean_download_folder()
 
 
 
