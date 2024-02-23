@@ -13,6 +13,7 @@ import os
 import shutil
 from bs4 import BeautifulSoup
 import time
+from datetime import datetime
 
 from missing_pn import missing_pns
 
@@ -45,20 +46,27 @@ class Download_pdf_depatis():
     def clean_temp_folder(self):
         for target_path in os.listdir(self.temp_directory):
             path_to_checked = self.temp_directory / target_path
-            if path_to_checked.is_file():
-                try:
-                    os.remove(target_path)
-                    print(f"File {target_path} has been removed.")
-                except:
-                    pass
-            elif path_to_checked.is_dir():
-                try:
-                    shutil.rmtree(target_path)
-                    print(f"Directory {target_path} and all its contents have been removed.")
-                except:
-                    pass
+
+            creation_time = datetime.fromtimestamp(path_to_checked.stat().st_ctime)
+            age_in_minutes = (datetime.now() - creation_time).total_seconds() / 60.0
+
+            if age_in_minutes >= 4:
+                if path_to_checked.is_file():
+                    try:
+                        os.remove(target_path)
+                        print(f"File {target_path} has been removed.")
+                    except:
+                        pass
+                elif path_to_checked.is_dir():
+                    try:
+                        shutil.rmtree(target_path)
+                        print(f"Directory {target_path} and all its contents have been removed.")
+                    except:
+                        pass
+                else:
+                    print(f"The target {target_path} does not exist.")
             else:
-                print(f"The target {target_path} does not exist.")
+                print(f"The target {target_path} is too young to be deleted.")
 
     def download_depatis_pdf(self, patent_number, page_num):
         # specify download link
