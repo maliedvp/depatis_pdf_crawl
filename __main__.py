@@ -42,7 +42,8 @@ class Download_pdf_depatis():
             self.download_depatis_pdf(patent_number=pn, page_num=2)
             self.clean_temp_folder()
         else:
-            print(f'Patent {pn}: Both files already exists')
+            # print(f'Patent {pn}: Both files already exists')
+            pass
 
 
     def clean_temp_folder(self):
@@ -67,11 +68,14 @@ class Download_pdf_depatis():
                         except:
                             pass
                     else:
-                        print(f"The target {path_to_checked} does not exist.")
+                        # print(f"The target {path_to_checked} does not exist.")
+                        pass
                 else:
-                    print(f"The target {path_to_checked} is too young to be deleted.")
+                    # print(f"The target {path_to_checked} is too young to be deleted.")
+                    pass
             except:
-                print(f"The target {path_to_checked} impossible to be deleted.")
+                # print(f"The target {path_to_checked} impossible to be deleted.")
+                pass
 
 
     def download_depatis_pdf(self, patent_number, page_num):
@@ -148,19 +152,35 @@ class Download_pdf_depatis():
                         download_button.click()
                         print(f'Patent {patent_number} (Page {page_num}): Download has started')
                         # Wait for the download to complete
-                        time.sleep(3)
+                        file_path = self.output_directory / str(patent_number + '_' + str(page_num) + '.pdf')
+
+                        i = 0
+                        while not os.path.exists(file_path):
+                            time.sleep(3)
+                            i+=1
+                            print(f'\t  Patent {patent_number} (Page {page_num}): caught in 1. while-loop {i}')
+
+                        i = 0
+                        while os.path.getsize(file_path)==0:
+                            time.sleep(3)
+                            i+=1
+                            print(f'\t Patent {patent_number} (Page {page_num}): caught in 2. while-loop {i}')
+
+                        print(f'Patent {patent_number} (Page {page_num}): Download has finished')
 
                     except Exception as e:
                         print("Error waiting for download button:", e)
 
                 else:
-                    print(f'Patent {patent_number} (Page {page_num}): Server blocked access')
+                    pass
+                    # print(f'Patent {patent_number} (Page {page_num}): Server blocked access')
 
                 driver.quit()
                 break
                 
             except:
-                print(f'Patent {patent_number} (Page {page_num}): Server blocked access')
+                pass
+                # print(f'Patent {patent_number} (Page {page_num}): Server blocked access')
 
 
 

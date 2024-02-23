@@ -1,3 +1,7 @@
 *.pdf
 .DS_Store
 __pycache__/
+._README.md
+.___main__.py
+._missing_pn.py
+.gitignore.swp
